@@ -23,8 +23,8 @@ public class RFIDTagListener {
 	public void onMessage(RFIDTag rfidTag) {
 		try {
 			//do something here
-			System.out.println(job + " Tag: " + rfidTag._ANT_NUM + " # " + rfidTag._EPC);
-			Thread.sleep(2000);
+			System.out.println(job + " Tag: " + rfidTag.get_ANT_NUM() + " # " + rfidTag.get_EPC());
+//			Thread.sleep(2000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

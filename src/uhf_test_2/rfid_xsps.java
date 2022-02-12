@@ -13,7 +13,9 @@ import com.rfidread.*;
 //import javafx.application.Application;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Vector;
 
 class rfid_task extends Thread{
 	int task;
@@ -74,33 +76,40 @@ public class rfid_xsps {
 
 	public static void main(String[] args) throws Exception
 	{
+		HashMap<Integer, Integer> antennaSetConsumers = new HashMap<Integer, Integer>(4);
+		Vector<Integer> antennaSet = null;
 		System.out.println("Aloha");
 
-//        Producer producer = new Producer();
-        Publisher producer = new Publisher();
-        RFIDConsumer consumer = new RFIDConsumer();
-        RFIDTagListener rfidListener = new RFIDTagListener("RFID LISTENER");
- 
+		antennaSetConsumers.put(1, 3);
+		antennaSetConsumers.put(2, 1);
+		antennaSetConsumers.put(3, 1);
+		antennaSetConsumers.put(4, 1);
+
+		antennaSet = new Vector(antennaSetConsumers.size());
+		for (Map.Entry<Integer, Integer> set : antennaSetConsumers.entrySet())
+			antennaSet.add(set.getKey());		
+
+		XSPSRFIDReader producer = new XSPSRFIDReader("192.168.1.116", 9090, "wms_rfid.ant.", antennaSet);
+		PoolRFIDConsumer consumers = new PoolRFIDConsumer("wms_rfid.ant.", "tcp://localhost:61616", antennaSetConsumers);
+
+		RFIDTagListener rfidListener = new RFIDTagListener("     RFID LISTENER ==========> ");
+
         Thread producerThread = new Thread(producer);
         producerThread.start();
  
-        Thread consumerThread = new Thread(consumer);
-        consumer.registerListener(33, rfidListener);
-        consumerThread.start();
-//        Thread.sleep(1000);
-//        consumer.registerListener(1, rfidListener);
-
-//        Thread consumerThread2 = new Thread(consumer);
-//        consumerThread2.start();		
-
-        Thread.sleep(1000000);
+        consumers.startRFIDConsumers();
+        consumers.registerListener(1, rfidListener);
+        
+        /* Just hang out right here to give a chance to scan some RFID Tags */
+        Thread.sleep(3000);
+        consumers.printConsumersStat();
 		Scanner sc = new Scanner(System.in);
 
 		String readKey;
-		rfid_reader example = new rfid_reader();
+//		RFIDReaderProducer example = new RFIDReaderProducer();
 
 		System.out.println("Please input TCP ConnID,Format: 'IP Address':'Connect Port' like \"192.168.1.116:9090\" \n");
-//		ConnID = sc.next();
+/*		ConnID = sc.next();
 		if(RFIDReader.CreateTcpConn(ConnID, example))
 		{
 			System.out.println("Connect success!\n");
@@ -117,7 +126,7 @@ public class rfid_xsps {
 		{
 			System.out.println("Connect failure!\n");
 //			continue;
-		}
+		}*/
 
 /*		for (int i = 1; i < 2; i++) {
             rfid_task xsps_rfid_task

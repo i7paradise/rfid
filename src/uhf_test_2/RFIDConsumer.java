@@ -1,6 +1,7 @@
 package uhf_test_2;
 
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.Connection;
@@ -17,103 +18,105 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class RFIDConsumer implements Runnable {
 
-    private static String brokerURL = "tcp://localhost:61616";
-    private static transient ConnectionFactory factory;
-    private transient Connection connection;
-    private transient Session session;
-    private MessageConsumer consumer;
-    private Destination RFIDqueue;
-    private ConcurrentHashMap<Integer, RFIDTagListener> rfidListener = new ConcurrentHashMap<Integer, RFIDTagListener>();
+    private static transient ConnectionFactory factory = null;
+    private transient Connection connection = null;
+    private transient Session session = null;
+    private MessageConsumer consumer = null;
+    private Destination RFIDqueue = null;
+    private Vector<RFIDTagListener> rfidListeners = null;
+    private int rfidAntenna;
+    private String brokerUrl = null;
+    private String brokerStore = null;
+    private int tag_cnt = 0;
+
     
-//    private String jobs[] = new String[]{"suspend", "delete"};
-    private String jobs[] = new String[]{"JOBS.wms_rfid"};
-    
-    public RFIDConsumer() throws JMSException {
-    	factory = new ActiveMQConnectionFactory(brokerURL);
+    public RFIDConsumer(String brokerStorePrefix, String brokerURL, int rfidAntenna) throws JMSException {
+    	this.brokerUrl = new String(brokerURL);
+    	this.rfidAntenna = rfidAntenna;
+    	this.brokerStore = new String(brokerStorePrefix) + String.valueOf(this.rfidAntenna);
+
+    	factory = new ActiveMQConnectionFactory(this.brokerUrl);
 //    	factory.setTrustAllPackages(true);
     	connection = factory.createConnection();
         connection.start();
         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        RFIDqueue = session.createQueue("JOBS.wms_rfid");
+        RFIDqueue = session.createQueue(this.brokerStore);
         consumer = session.createConsumer(RFIDqueue);
-
-//        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-
-        //Create Connection
-//        Connection connection = factory.createConnection();
-
-        // Start the connection
-//        connection.start();
-
-        // Create Session
-//        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        //Create queue
-//        Destination queue = session.createQueue("Queue");
-
-//        MessageConsumer consumer = session.createConsumer(queue);
-
+        rfidListeners = new Vector<RFIDTagListener>();
     }
     
     public void close() throws JMSException {
         if (connection != null) {
             connection.close();
         }
-    }    
-    
-//    public static void main(String[] args) throws JMSException {
+    }
+
     public void run() {
     	try {
-//    		RFIDConsumer wmsConsumer = new RFIDConsumer();
-/*    		for (String job : consumer.jobs) {
-    			Destination destination = consumer.getSession().createQueue("JOBS." + job);
-    			MessageConsumer messageConsumer = consumer.getSession().createConsumer(destination);
-    			messageConsumer.setMessageListener(new Listener(job));
-    		}*/
-    		int cnt = 0;
             for (; ; ) {
             	Message message = consumer.receive();
 
-            	cnt++;
+            	tag_cnt++;
             	if (message instanceof ObjectMessage) {
             		ObjectMessage objMessage = (ObjectMessage) message;
-//                    SomeObject someObject = (SomeObject)objectMessage.getObject();
             		RFIDTag wmsTag = (RFIDTag) objMessage.getObject();
                     
-            		for (Map.Entry<Integer, RFIDTagListener> set :
-            			rfidListener.entrySet()) {
-            
-                       // Printing all elements of a Map
-                       System.out.println(set.getKey() + " = "
-                                          + set.getValue());
-                       if (set.getKey() == wmsTag._ANT_NUM)
-                    	   set.getValue().onMessage(wmsTag);
+            		for (RFIDTagListener rfidListener : rfidListeners) {
+                       if (rfidAntenna == wmsTag.get_ANT_NUM())
+                    	   rfidListener.onMessage(wmsTag);
                    }
-            		Thread.sleep(300);
-
-//            		String text = textMessage.getText();
-//            		System.out.println("Consumer Received cnt -> " + cnt + " out of " + consumer.toString() + " = " + wmsTag._EPC);
-//            		System.out.println("Consumer Received cnt -> " + cnt + " out of " + consumer.toString() + " = " + objMessage.toString());
             	}
-//            	Thread.sleep(5000);
             }
     	} catch(Exception e) {
     		System.out.println("Consumer @ exeception: " + e.getMessage());
     	}
     }
 
-    public void registerListener(Integer antenna, RFIDTagListener _rfidListener) {
-    	rfidListener.put(antenna, _rfidListener);
+    public void registerListener(RFIDTagListener _rfidListener) {
+    	rfidListeners.add(_rfidListener);
     }
 
-    public void unregisterListener(Integer antenna, RFIDTagListener _rfidListener) {
-    	if (rfidListener.containsKey(_rfidListener))
-    		rfidListener.remove(antenna, _rfidListener);
+    public void unregisterListener(RFIDTagListener _rfidListener) {
+    	for (RFIDTagListener rfidListener : rfidListeners)
+    	if (rfidListener == _rfidListener)
+    		rfidListeners.remove(_rfidListener);
     }
 
 	public Session getSession() {
 		return session;
 	}
 
+	public int getTag_cnt() {
+		return tag_cnt;
+	}
 
+	public void setTag_cnt(int tag_cnt) {
+		this.tag_cnt = tag_cnt;
+	}
+
+	public int getRFIDAntenna() {
+		return rfidAntenna;
+	}
+
+	public void setRFIDAntenna(int rfidAntenna) {
+		this.rfidAntenna = rfidAntenna;
+	}
+
+	public String getBrokerUrl() {
+		return brokerUrl;
+	}
+
+	public void setBrokerUrl(String brokerUrl) {
+		this.brokerUrl = brokerUrl;
+	}
+
+	public String getBrokerStore() {
+		return brokerStore;
+	}
+
+	public void setBrokerStore(String brokerStore) {
+		this.brokerStore = brokerStore;
+	}
+
+	
 }

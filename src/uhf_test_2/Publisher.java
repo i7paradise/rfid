@@ -90,8 +90,8 @@ public class Publisher implements Runnable{
         String job = jobs[0];
         Destination destination = session.createQueue("JOBS." + job);
         RFIDTag wmsTag = new RFIDTag();
-        wmsTag._ANT_NUM = 33;
-        wmsTag._EPC = String.valueOf(id++);
+        wmsTag.set_ANT_NUM(2);
+        wmsTag.set_EPC(String.valueOf(id++));
         Message message = session.createObjectMessage(wmsTag);
         System.out.println("Sending: id: " + ((ObjectMessage)message).getObject() + " on queue: " + destination);
         producer.send(destination, message);
