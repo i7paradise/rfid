@@ -77,8 +77,7 @@ public class XSPSRFIDReader implements Runnable {
 			e1.printStackTrace();
 		}
 
-
-		Tag_Model wmsTag = null;
+/*		Tag_Model wmsTag = null;
 		byte[] param = new byte[] {(byte)0xe0, 0x4f, (byte)0xd0,
 				0x20, (byte)0xea, 0x3a, 0x69, 0x10, (byte)0xa2, (byte)0xd8, 0x08, 0x00, 0x2b,
 				0x30, 0x30, (byte)0x9d};
@@ -90,14 +89,21 @@ public class XSPSRFIDReader implements Runnable {
 		}
 
 		for (int cnt = 1; cnt < 11; cnt++) {
-			wmsTag._ANT_NUM = cnt % 4;
+			wmsTag._ANT_NUM = cnt % 2;
 			if (wmsTag._ANT_NUM == 0)
-				wmsTag._ANT_NUM = 4;
+				wmsTag._ANT_NUM = 2;
 			wmsTag._EPC = String.valueOf(cnt);
 			rfidReaderProducer.OutPutTags(wmsTag);
 		}
 
-/*		if (RFIDReader.CreateTcpConn(ConnId, rfidReaderProducer)) {
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+
+		if (RFIDReader.CreateTcpConn(ConnId, rfidReaderProducer)) {
 			System.out.println("Connect success!\n");
 			try {
 				System.out.println("Thread " + Thread.currentThread().getId() + " Config: " + RFIDReader._Config.GetEPCBaseBandParam(ConnId));
@@ -108,7 +114,7 @@ public class XSPSRFIDReader implements Runnable {
 			RFIDReader.Stop(ConnId);
 		} else {
 			System.out.println("Connect failure!\n");
-		}*/
+		}
 		return true;
 	}
 
@@ -128,6 +134,7 @@ public class XSPSRFIDReader implements Runnable {
 			return;
 
 		int antennaSet = eAntennaNo._1.GetNum() | eAntennaNo._2.GetNum() | eAntennaNo._3.GetNum() | eAntennaNo._4.GetNum();
+//		int antennaSet = eAntennaNo._1.GetNum();
 		rt = Tag6C.GetEPC(ConnId, antennaSet, eReadType.Inventory);
 		if (rt == 0) {
 			System.out.println("XSPSRFIDReader Success");

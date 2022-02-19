@@ -16,6 +16,7 @@ public class RFIDTag implements Serializable {
 	private String _EPC = null;
 	private String _TagType = "6C";
 	private int _ANT_NUM = 0;
+	private int readCount = 0;
 
 	public String get_ReaderName() {
 		return _ReaderName;
@@ -55,6 +56,18 @@ public class RFIDTag implements Serializable {
 
 	public void set_ANT_NUM(int _ANT_NUM) {
 		this._ANT_NUM = _ANT_NUM;
+	}
+
+	public int getReadCount() {
+		return readCount;
+	}
+
+	public void setReadCount(int readCount) {
+		this.readCount = readCount;
+	}
+
+	public void incReadCount() {
+		this.readCount++;
 	}
 
 	public void resetRFIDTag() {

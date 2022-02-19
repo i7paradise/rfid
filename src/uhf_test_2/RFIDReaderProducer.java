@@ -75,7 +75,7 @@ public class RFIDReaderProducer implements IAsynchronousMessage, ISearchDevice {
 		rfid_xsps.read_cnt++;
 //		System.out.println("Thread " + Thread.currentThread().getId() + " -> X-SPS Antena: " + tag._ANT_NUM);
 //		System.out.println("Thread " + Thread.currentThread().getId() + " -> X-SPS Antena: " + tag._ANT_NUM +  " - Data: " + tag._UserData);
-		System.out.println("Thread " + Thread.currentThread().getId() + " -> X-SPS Antena: " + tag._ANT_NUM +  " - Data: " + tag._EPC);
+//		System.out.println("Thread " + Thread.currentThread().getId() + " -> X-SPS Antena: " + tag._ANT_NUM +  " - Data: " + tag._EPC);
 		wmsRFIDTag.resetRFIDTag();
 		wmsRFIDTag.set_ANT_NUM(tag._ANT_NUM);
 		wmsRFIDTag.set_EPC(tag._EPC);

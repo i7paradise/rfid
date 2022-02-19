@@ -10,6 +10,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -62,9 +63,14 @@ public class RFIDConsumer implements Runnable {
             		RFIDTag wmsTag = (RFIDTag) objMessage.getObject();
                     
             		for (RFIDTagListener rfidListener : rfidListeners) {
+//            			wmsTag.set_EPC(this.toString());
                        if (rfidAntenna == wmsTag.get_ANT_NUM())
                     	   rfidListener.onMessage(wmsTag);
+                       else
+                    	   System.out.println("RFID Consumer: wrong antenna: " + rfidAntenna + " ### " + wmsTag.get_ANT_NUM());
                    }
+            	} else {
+            		System.out.println("RFID Consumer: received message is broken");            		
             	}
             }
     	} catch(Exception e) {

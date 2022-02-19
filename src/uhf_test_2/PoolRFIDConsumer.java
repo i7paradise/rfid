@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.jms.JMSException;
+import javax.jms.MessageListener;
 
 /**
  * @author hmr
@@ -56,7 +57,8 @@ public class PoolRFIDConsumer {
 			if (set.getKey() == antenna) {
 				Vector<RFIDConsumer> rfidConsumers = set.getValue();
 				//TODO: register the rfid listener in round-robin fashion was to the set of rfid consumers
-    			rfidConsumers.get(0).registerListener(_rfidListener);
+				for (RFIDConsumer rfidConsumer : rfidConsumers)
+					rfidConsumer.registerListener(_rfidListener);
 			}
 		}
     }
